@@ -26,7 +26,17 @@ class AIService:
                 messages=[
                     {
                         "role": "system",
-                        "content": "Extract tasks from meeting notes. Return JSON array with title, description, assignee, due_date."
+                        "content": """Extract tasks from meeting notes. Return JSON array with title, description, assignee, due_date, scheduled_time.
+Detect simple time expressions and map them to scheduled_time in HH:MM format (24-hour).
+Mapping rules:
+morning -> 09:00
+afternoon -> 14:00
+evening -> 19:00
+night -> 21:00
+5pm -> 17:00
+6 pm -> 18:00
+etc.
+If no time is detected, set scheduled_time to null."""
                     },
                     {
                         "role": "user",
@@ -67,6 +77,7 @@ class AIService:
                     "title": line,
                     "description": f"Extracted from notes: {line}",
                     "assignee": "Unassigned",
-                    "due_date": None
+                    "due_date": None,
+                    "scheduled_time": None
                 })
             return tasks

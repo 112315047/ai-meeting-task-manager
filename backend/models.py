@@ -10,6 +10,7 @@ class Task:
     status: str
     assignee: Optional[str]
     due_date: Optional[datetime]
+    scheduled_time: Optional[str]
     created_at: Optional[datetime]
     
     @classmethod
@@ -37,6 +38,7 @@ class Task:
             status=row['status'],
             assignee=row['assignee'],
             due_date=parse_dt(row['due_date']),
+            scheduled_time=row['scheduled_time'] if 'scheduled_time' in row.keys() else None,
             created_at=parse_dt(row['created_at'])
         )
         
@@ -48,5 +50,6 @@ class Task:
             "status": self.status,
             "assignee": self.assignee,
             "due_date": self.due_date.isoformat() if self.due_date else None,
+            "scheduled_time": self.scheduled_time,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }

@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from typing import List, Optional
 from ..database import get_db
 from ..models import Task
@@ -10,7 +11,11 @@ class TaskService:
     def get_all_tasks() -> List[Task]:
         db = get_db()
         rows = db.execute(
-            'SELECT * FROM tasks ORDER BY created_at DESC'
+            '''SELECT * FROM tasks 
+               ORDER BY 
+                 CASE WHEN scheduled_time IS NULL OR scheduled_time = '' THEN 1 ELSE 0 END, 
+                 scheduled_time ASC,
+                 created_at DESC'''
         ).fetchall()
         return [Task.from_row(row) for row in rows]
 
@@ -24,14 +29,40 @@ class TaskService:
         return Task.from_row(row)
 
     @staticmethod
+    def get_next_default_time() -> str:
+        db = get_db()
+        
+        # Get tasks created today with times to figure out the next slot
+        today = datetime.now().strftime('%Y-%m-%d')
+        rows = db.execute(
+            '''SELECT scheduled_time FROM tasks 
+               WHERE date(created_at) = ? AND scheduled_time IS NOT NULL AND scheduled_time != ""''', 
+            (today,)
+        ).fetchall()
+        
+        used_times = set(row['scheduled_time'] for row in rows)
+        
+        default_slots = ["19:00", "20:00", "21:00", "22:00"]
+        for slot in default_slots:
+            if slot not in used_times:
+                return slot
+                
+        # If all slots used or something else, default to 19:00 anyway
+        return "19:00"
+
+    @staticmethod
     def create_task(title: str, description: Optional[str] = None, 
-                   assignee: Optional[str] = None, due_date: Optional[str] = None) -> Task:
+                   assignee: Optional[str] = None, due_date: Optional[str] = None,
+                   scheduled_time: Optional[str] = None) -> Task:
         db = get_db()
         cursor = db.cursor()
         
+        if not scheduled_time:
+            scheduled_time = TaskService.get_next_default_time()
+        
         cursor.execute(
-            'INSERT INTO tasks (title, description, assignee, due_date, status) VALUES (?, ?, ?, ?, ?)',
-            (title, description, assignee, due_date, 'pending')
+            'INSERT INTO tasks (title, description, assignee, due_date, scheduled_time, status) VALUES (?, ?, ?, ?, ?, ?)',
+            (title, description, assignee, due_date, scheduled_time, 'pending')
         )
         db.commit()
         

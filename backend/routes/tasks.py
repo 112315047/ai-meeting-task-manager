@@ -33,12 +33,13 @@ def create_task():
     description = data.get('description')
     assignee = data.get('assignee')
     due_date = data.get('due_date')
+    scheduled_time = data.get('scheduled_time')
 
     # Basic type checking / length constraints conceptually go here
     if not isinstance(title, str) or len(title.strip()) == 0:
         return jsonify({"error": "Title must be a non-empty string"}), 400
 
-    new_task = TaskService.create_task(title, description, assignee, due_date)
+    new_task = TaskService.create_task(title, description, assignee, due_date, scheduled_time)
     
     # After saving string in SQLite, we might have basic parsing logic or we simply return its dict rep
     return jsonify(new_task.to_dict()), 201
@@ -86,7 +87,8 @@ def extract_tasks_route():
                 title=task.get("title", ""),
                 description=task.get("description", ""),
                 assignee=task.get("assignee", "Unassigned"),
-                due_date=task.get("due_date", None)
+                due_date=task.get("due_date", None),
+                scheduled_time=task.get("scheduled_time", None)
             )
             created_tasks.append(new_task.to_dict())
 

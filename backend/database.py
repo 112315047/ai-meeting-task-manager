@@ -32,6 +32,7 @@ def init_db():
         status TEXT DEFAULT 'pending', -- pending, in_progress, completed
         assignee TEXT,
         due_date TIMESTAMP,
+        scheduled_time TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """

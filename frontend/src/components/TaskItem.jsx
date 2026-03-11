@@ -15,6 +15,11 @@ const TaskItem = ({ task, onToggle, onDelete }) => {
         />
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <span className="task-text">{task.title || task.description}</span>
+          {task.scheduled_time && (
+            <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+              Time: {task.scheduled_time}
+            </span>
+          )}
           <span className={`badge ${isCompleted ? 'completed' : 'pending'}`}>
              {isCompleted ? 'Completed' : 'Pending'}
           </span>

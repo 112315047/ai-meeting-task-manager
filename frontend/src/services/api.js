@@ -33,8 +33,8 @@ export async function createTask(task) {
 }
 
 export async function updateTaskStatus(id, status) {
-  const res = await fetch(`${API_BASE}/tasks/${id}`, {
-    method: "PUT",
+  const res = await fetch(`${API_BASE}/tasks/${id}/status`, {
+    method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status })
   });
