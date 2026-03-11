@@ -3,6 +3,8 @@ import React from 'react';
 const TaskItem = ({ task, onToggle, onDelete }) => {
   const isCompleted = task.status === 'completed';
 
+  const formattedDate = task.due_date ? new Date(task.due_date).toLocaleDateString() : null;
+
   return (
     <div className={`task-item ${isCompleted ? 'completed' : ''}`}>
       <div className="task-content">
@@ -15,9 +17,10 @@ const TaskItem = ({ task, onToggle, onDelete }) => {
         />
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <span className="task-text">{task.title || task.description}</span>
-          {task.scheduled_time && (
+          {(formattedDate || task.scheduled_time) && (
             <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-              Time: {task.scheduled_time}
+              {formattedDate && <span>Date: {formattedDate} </span>}
+              {task.scheduled_time && <span>Time: {task.scheduled_time}</span>}
             </span>
           )}
           <span className={`badge ${isCompleted ? 'completed' : 'pending'}`}>

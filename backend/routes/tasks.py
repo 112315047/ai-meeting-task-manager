@@ -1,7 +1,8 @@
 import logging
+import re
 from flask import Blueprint, request, jsonify
 from ..services.task_service import TaskService
-from ..services.ai_service import AIService
+from ..services.ai_service import AIService, get_ist_date, parse_time_from_text
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,12 @@ def create_task():
     # Basic type checking / length constraints conceptually go here
     if not isinstance(title, str) or len(title.strip()) == 0:
         return jsonify({"error": "Title must be a non-empty string"}), 400
+
+    if not due_date:
+        due_date = get_ist_date()
+
+    if not scheduled_time:
+        scheduled_time = parse_time_from_text(title)
 
     new_task = TaskService.create_task(title, description, assignee, due_date, scheduled_time)
     
@@ -81,14 +88,20 @@ def extract_tasks_route():
         extracted_list = AIService.extract_tasks_from_notes(notes)
         
         created_tasks = []
+        offset_idx = 0
         # Insert each task using TaskService.create_task
         for task in extracted_list:
+            scheduled_time = task.get("scheduled_time")
+            if not scheduled_time:
+                scheduled_time = TaskService.get_next_default_time(offset_index=offset_idx)
+                offset_idx += 1
+                
             new_task = TaskService.create_task(
                 title=task.get("title", ""),
                 description=task.get("description", ""),
                 assignee=task.get("assignee", "Unassigned"),
                 due_date=task.get("due_date", None),
-                scheduled_time=task.get("scheduled_time", None)
+                scheduled_time=scheduled_time
             )
             created_tasks.append(new_task.to_dict())
 
