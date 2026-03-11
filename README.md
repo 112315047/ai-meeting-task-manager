@@ -119,6 +119,10 @@ http://localhost:5173
 
 ![Task Extraction](screenshots/extraction.png)
 
+### Task List (Scheduled Times)
+
+![Task List](screenshots/task-list.png)
+
 ---
 
 ## AI Task Extraction
