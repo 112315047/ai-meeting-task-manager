@@ -9,6 +9,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('list'); // 'list' or 'extract'
+  const [filter, setFilter] = useState('All'); // 'All', 'Pending', 'Completed'
 
   const loadTasks = async () => {
     try {
@@ -112,10 +113,27 @@ function App() {
                   Refresh
                 </button>
               </div>
+              
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                <button 
+                  className={filter === 'All' ? 'btn-primary' : ''} 
+                  onClick={() => setFilter('All')}
+                >All</button>
+                <button 
+                  className={filter === 'Pending' ? 'btn-primary' : ''} 
+                  onClick={() => setFilter('Pending')}
+                >Pending</button>
+                <button 
+                  className={filter === 'Completed' ? 'btn-primary' : ''} 
+                  onClick={() => setFilter('Completed')}
+                >Completed</button>
+              </div>
+
               <TaskList 
-                tasks={tasks} 
+                tasks={tasks.filter(t => filter === 'All' ? true : (filter === 'Completed' ? t.status === 'completed' : t.status === 'pending'))} 
                 loading={loading} 
                 error={error} 
+
                 onToggleTask={handleToggleTask} 
                 onDeleteTask={handleDeleteTask} 
               />

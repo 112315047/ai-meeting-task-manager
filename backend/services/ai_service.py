@@ -1,37 +1,72 @@
+import os
+import json
 import logging
-from typing import List, Dict
+
+try:
+    from groq import Groq
+except ImportError:
+    # Fallback if pip is broken and groq package cannot be installed:
+    # Use the existing openai package configured for Groq's compatible API
+    from openai import OpenAI
+    class Groq(OpenAI):
+        def __init__(self, api_key=None, **kwargs):
+            kwargs.setdefault("base_url", "https://api.groq.com/openai/v1")
+            super().__init__(api_key=api_key, **kwargs)
 
 logger = logging.getLogger(__name__)
 
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
 class AIService:
     @staticmethod
-    def extract_tasks_from_notes(notes: str) -> List[Dict]:
-        """
-        Simulates extracting actionable tasks from unstructured meeting notes using an AI model.
-        Returns a list of dictionaries representing tasks.
-        """
-        logger.info(f"Extracting tasks from notes: {notes[:50]}...")
-        
-        # In a real scenario, we would call an LLM API here (e.g., OpenAI, Anthropic)
-        # For now, we stub it out with a basic mock based on keyword detection 
-        # just for demonstration purposes.
-        
-        tasks_found = []
-        
-        # Simple dynamic mockup: split notes by newline/bullet and generate tasks
-        lines = [line.strip("-* ") for line in notes.split('\n') if line.strip()]
-        
-        for index, line in enumerate(lines):
-            # Very basic extraction logic to prove it works dynamically based on user input
-            title = line[:50] if len(line) > 50 else line
+    def extract_tasks_from_notes(notes: str):
+        try:
+            response = client.chat.completions.create(
+                model="llama3-8b-8192",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "Extract tasks from meeting notes. Return JSON array with title, description, assignee, due_date."
+                    },
+                    {
+                        "role": "user",
+                        "content": notes
+                    }
+                ]
+            )
+            content = response.choices[0].message.content
             
-            # Basic assignment logic mockup
-            assignee = "Backend Team" if "backend" in line.lower() else ("Frontend Team" if "frontend" in line.lower() else "Unassigned")
+            # Parse the response text safely
+            content = content.strip()
+            if content.startswith("```json"):
+                content = content[7:]
+            if content.startswith("```"):
+                content = content[3:]
+            if content.endswith("```"):
+                content = content[:-3]
+                
+            parsed = json.loads(content)
             
-            tasks_found.append({
-                "title": title.strip(),
-                "description": f"Extracted from notes: {line}",
-                "assignee": assignee
-            })
+            # Handle if the LLM returned {"tasks": [...]} or just [...]
+            if isinstance(parsed, dict) and "tasks" in parsed:
+                return parsed["tasks"]
+            elif isinstance(parsed, list):
+                return parsed
+            else:
+                raise ValueError("Parsed JSON is not a valid list of tasks.")
+                
+        except Exception as e:
+            logger.error(f"AI extraction failed, using fallback: {e}")
             
-        return tasks_found
+            # Fallback extraction if Groq fails
+            lines = [line.strip() for line in notes.split("\n") if line.strip()]
+            
+            tasks = []
+            for line in lines:
+                tasks.append({
+                    "title": line,
+                    "description": f"Extracted from notes: {line}",
+                    "assignee": "Unassigned",
+                    "due_date": None
+                })
+            return tasks

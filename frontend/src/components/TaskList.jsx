@@ -3,7 +3,11 @@ import TaskItem from './TaskItem';
 
 const TaskList = ({ tasks, onToggleTask, onDeleteTask, loading, error }) => {
   if (loading) {
-    return <div className="loading-state">Loading tasks...</div>;
+    return (
+      <div className="loading-state">
+        <div className="spinner"></div>
+      </div>
+    );
   }
 
   if (error) {

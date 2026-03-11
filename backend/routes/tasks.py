@@ -71,20 +71,29 @@ def delete_task(task_id):
     return jsonify({"message": "Task deleted successfully"}), 200
 
 @bp.route('/extract', methods=['POST'])
-def extract_tasks():
+def extract_tasks_route():
     data = request.get_json()
     notes = data.get("notes")
 
-    extracted = AIService.extract_tasks_from_notes(notes)
+    try:
+        # Call the OpenAI SDK wrapper block
+        extracted_list = AIService.extract_tasks_from_notes(notes)
+        
+        created_tasks = []
+        # Insert each task using TaskService.create_task
+        for task in extracted_list:
+            new_task = TaskService.create_task(
+                title=task.get("title", ""),
+                description=task.get("description", ""),
+                assignee=task.get("assignee", "Unassigned"),
+                due_date=task.get("due_date", None)
+            )
+            created_tasks.append(new_task.to_dict())
 
-    created_tasks = []
-    for task in extracted:
-        new_task = TaskService.create_task(
-            title=task.get("title"),
-            description=task.get("description"),
-            assignee=task.get("assignee"),
-            due_date=task.get("due_date")
-        )
-        created_tasks.append(new_task.to_dict())
+        # Return structured format like { "tasks": [...] }
+        return jsonify({"tasks": created_tasks}), 201
 
-    return jsonify(created_tasks), 201
+    except Exception as e:
+        print("Extraction error:", e)
+        logger.error(f"Extraction route error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
