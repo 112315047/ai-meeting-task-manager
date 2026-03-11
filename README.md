@@ -73,6 +73,25 @@ The backend handles business logic, AI task extraction, and data persistence.
 
 ---
 
+## Key Technical Decisions
+
+### Flask for Backend
+Flask was chosen because it is lightweight and suitable for building REST APIs quickly. The project uses Flask blueprints and a service layer to keep routing logic separate from business logic.
+
+### React + Vite for Frontend
+React was used to create a responsive task dashboard. Vite provides fast development builds and hot module reloading, improving development speed.
+
+### SQLite Database
+SQLite was selected for simplicity and because it requires no external setup. It is sufficient for a small task management system.
+
+### AI Task Extraction
+A language model is used to convert unstructured meeting notes into structured tasks. The system attempts to extract tasks and optional time references from text.
+
+### Time-based Task Ordering
+Tasks are stored with an optional scheduled_time field and displayed in time order to make the dashboard easier to scan.
+
+---
+
 ## Project Structure
 
 ```
