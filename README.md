@@ -111,6 +111,8 @@ http://localhost:5173
 
 ## Screenshots
 
+> **Note to developer**: The `screenshots/` directory is currently empty. To get these images to show up, please save the screenshots you captured into the `screenshots` folder in the root of your project using the exact filenames listed below, then commit and push them to GitHub.
+
 ### Dashboard
 
 ![Dashboard](screenshots/dashboard.png)
