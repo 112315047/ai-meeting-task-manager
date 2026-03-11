@@ -1,8 +1,19 @@
 # AI Meeting Task Manager
 
-An AI-powered task management application that converts unstructured meeting notes into structured tasks and allows users to manage them through a simple dashboard.
+## Project Overview
 
-The system uses an AI model to extract actionable tasks from meeting text and automatically organize them for tracking and completion.
+AI Meeting Task Manager is a small full-stack application that helps convert unstructured meeting notes into actionable tasks.
+
+Users can paste meeting notes into the application and the system will use an AI model to extract structured tasks automatically.
+These tasks can then be managed through a simple dashboard where users can update status, assign time, and track completion.
+
+Typical workflow:
+
+1. Paste meeting notes into the extraction panel
+2. The backend AI service converts text into task objects
+3. Tasks are stored in the database
+4. The dashboard displays tasks sorted by time
+5. Users can update status or delete tasks
 
 ---
 
@@ -59,6 +70,47 @@ AI Extraction Service
 
 The frontend communicates with the backend using REST APIs.
 The backend handles business logic, AI task extraction, and data persistence.
+
+---
+
+## Project Structure
+
+```
+ai-meeting-task-manager
+│
+├── backend
+│   ├── routes
+│   │   └── tasks.py
+│   ├── services
+│   │   ├── task_service.py
+│   │   └── ai_service.py
+│   ├── tests
+│   ├── app.py
+│   ├── database.py
+│   ├── models.py
+│   └── requirements.txt
+│
+├── frontend
+│   ├── src
+│   │   ├── components
+│   │   ├── services
+│   │   └── App.jsx
+│   ├── package.json
+│   └── vite.config.js
+│
+├── screenshots
+│   ├── dashboard.png
+│   └── extraction.png
+│
+├── README.md
+└── .gitignore
+```
+
+* backend = Flask API and business logic
+* frontend = React user interface
+* services = AI extraction and task logic
+* routes = REST API endpoints
+* screenshots = UI examples for documentation
 
 ---
 
